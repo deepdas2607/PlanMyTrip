@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,12 +9,12 @@ import {
   Clock, 
   Star, 
   Download, 
-  Share,
   Calendar,
   Map
 } from 'lucide-react';
 import { TripData, ItineraryDay } from '../pages/Index';
 import InteractiveMap from './InteractiveMap';
+import { usePDF } from 'react-to-pdf';
 
 interface ItineraryDashboardProps {
   tripData: TripData;
@@ -30,6 +29,10 @@ const ItineraryDashboard: React.FC<ItineraryDashboardProps> = ({
 }) => {
   const [selectedDay, setSelectedDay] = useState(1);
   const [activeTab, setActiveTab] = useState('timeline');
+  const { toPDF, targetRef } = usePDF({
+    filename: `trip-itinerary-${tripData.destination}.pdf`,
+    page: { format: 'a4', orientation: 'portrait' }
+  });
 
   const formatTime = (time: string) => {
     return time;
@@ -46,14 +49,13 @@ const ItineraryDashboard: React.FC<ItineraryDashboardProps> = ({
     return colors[type] || 'bg-slate-100 text-slate-700';
   };
 
-  const exportToPDF = () => {
-    // Mock PDF export
-    console.log('Exporting to PDF...');
-  };
-
-  const shareItinerary = () => {
-    // Mock share functionality
-    console.log('Sharing itinerary...');
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -75,17 +77,92 @@ const ItineraryDashboard: React.FC<ItineraryDashboardProps> = ({
                 </p>
               </div>
             </div>
-            
             <div className="flex space-x-3">
-              <Button variant="outline" onClick={shareItinerary} className="rounded-xl">
-                <Share className="w-4 h-4 mr-2" />
-                Share
-              </Button>
-              <Button onClick={exportToPDF} className="rounded-xl bg-gradient-to-r from-sky-500 to-coral-500">
+              <Button onClick={toPDF} className="rounded-xl bg-gradient-to-r from-sky-500 to-coral-500">
                 <Download className="w-4 h-4 mr-2" />
                 Export PDF
               </Button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hidden PDF content for export */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }} aria-hidden="true">
+        <div ref={targetRef} className="p-8 max-w-[800px] mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-sky-600 mb-2">
+              Trip Itinerary: {tripData.destination}
+            </h1>
+            <p className="text-slate-600">
+              {formatDate(tripData.startDate)} - {formatDate(tripData.endDate)}
+            </p>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-slate-800 mb-4">Trip Details</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-slate-600">Destination</p>
+                <p className="font-medium">{tripData.destination}</p>
+              </div>
+              <div>
+                <p className="text-slate-600">Travel Style</p>
+                <p className="font-medium capitalize">{tripData.travelStyle}</p>
+              </div>
+              <div>
+                <p className="text-slate-600">Interests</p>
+                <p className="font-medium capitalize">
+                  {tripData.interests.join(', ')}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-600">Duration</p>
+                <p className="font-medium">{tripData.days} days</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold text-slate-800 mb-4">Daily Schedule</h2>
+            {itinerary.map((day) => (
+              <div key={day.day} className="mb-6 border-b border-slate-200 pb-6">
+                <h3 className="text-lg font-semibold text-sky-600 mb-3">
+                  Day {day.day} - {formatDate(day.date)}
+                </h3>
+                <div className="space-y-4">
+                  {day.activities.map((activity) => (
+                    <div key={activity.id} className="bg-slate-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium text-slate-800">{activity.name}</h4>
+                          <p className="text-sm text-slate-600">{activity.description}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-sky-600">{activity.time}</p>
+                          <p className="text-sm text-slate-500">{activity.duration}</p>
+                        </div>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {activity.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs px-2 py-1 bg-sky-100 text-sky-700 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center text-sm text-slate-500">
+            <p>Generated by PlanMyTrip</p>
+            <p>© {new Date().getFullYear()} All rights reserved</p>
           </div>
         </div>
       </div>
