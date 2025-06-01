@@ -58,23 +58,17 @@ cd planmytrip
 
 2. Set up environment variables
 Backend (/server/.env)
-env
-Copy
-Edit
+
 MONGO_URI=your_mongodb_uri
 GEMINI_API_KEY=your_google_gemini_key
 WEATHER_API_KEY=your_weather_api_key
 PORT=5000
 Frontend (/client/.env)
-env
-Copy
-Edit
+
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_key
 VITE_BACKEND_URL=http://localhost:5000
 3. Install dependencies
-bash
-Copy
-Edit
+
 # Backend
 cd server
 npm install
@@ -83,9 +77,7 @@ npm install
 cd ../client
 npm install
 4. Run the application
-bash
-Copy
-Edit
+
 # Start backend
 cd server
 npm run dev
@@ -96,9 +88,7 @@ npm run dev
 App will run at: http://localhost:5173
 
 🗃️ Folder Structure
-pgsql
-Copy
-Edit
+
 planmytrip/
 ├── client/
 │   ├── components/
