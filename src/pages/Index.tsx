@@ -1,8 +1,10 @@
-
 import React, { useState } from 'react';
 import LandingHero from '../components/LandingHero';
 import TripWizard from '../components/TripWizard';
 import ItineraryDashboard from '../components/ItineraryDashboard';
+import WeatherForecast from '../components/WeatherForecast';
+import BackButton from '../components/BackButton';
+import ItineraryPDF from '../components/ItineraryPDF';
 
 export interface TripData {
   destination: string;
@@ -105,6 +107,12 @@ const Index = () => {
     setItinerary(mockItinerary);
   };
 
+  const handleBackToLanding = () => {
+    setCurrentStep('landing');
+    setTripData(null);
+    setItinerary([]);
+  };
+
   const handleBackToWizard = () => {
     setCurrentStep('wizard');
   };
@@ -116,15 +124,28 @@ const Index = () => {
       )}
       
       {currentStep === 'wizard' && (
-        <TripWizard onSubmit={handleTripSubmit} />
+        <>
+          <BackButton onClick={handleBackToLanding} />
+          <TripWizard onSubmit={handleTripSubmit} />
+        </>
       )}
       
       {currentStep === 'itinerary' && tripData && (
-        <ItineraryDashboard 
-          tripData={tripData}
-          itinerary={itinerary}
-          onBack={handleBackToWizard}
-        />
+        <div className="container mx-auto px-4 py-8">
+          <BackButton onClick={handleBackToWizard} />
+          <WeatherForecast
+            destination={tripData.destination}
+            startDate={tripData.startDate}
+            endDate={tripData.endDate}
+          />
+          <div className="mt-8">
+            <ItineraryDashboard 
+              tripData={tripData}
+              itinerary={itinerary}
+              onBack={handleBackToWizard}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
